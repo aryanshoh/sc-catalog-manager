@@ -17,15 +17,22 @@ enum CoreConstants {
     static let shortDescriptionSection = "Short description"
     /// Название секции с полным описанием товара.
     static let fullDescriptionSection = "Full description"
+    /// Секция «составные модули» (для Quintessence).
+    static let constituentModulesSection = "Constituent modules"
+    /// Секция «сходства/различия/сочетания» (для Quintessence).
+    static let similaritiesSection = "Similarities, differences, combinations"
 
     // Порядок секций товара в txt-каталоге: категории, даты публикации и
-    // изменения, затем краткое и полное описание.
+    // изменения, краткое и полное описание, затем — только для Quintessence —
+    // составные модули и сходства/различия.
     static let sectionOrder = [
         categoriesSection,
         publishDateSection,
         modifiedDateSection,
         shortDescriptionSection,
         fullDescriptionSection,
+        constituentModulesSection,
+        similaritiesSection,
     ]
 
     static let requestTimeout: TimeInterval = 45
@@ -58,6 +65,11 @@ struct Site: Identifiable, Hashable {
     let catalogHeader: String
 
     var id: String { key }
+
+    /// Описания Quintessence содержат подзаголовки «Constituent modules:» и
+    /// «Similarities, differences, combinations:» — выносим их из полного
+    /// описания в отдельные секции.
+    var splitsExtraSections: Bool { key == "quintessence" }
 }
 
 enum Sites {

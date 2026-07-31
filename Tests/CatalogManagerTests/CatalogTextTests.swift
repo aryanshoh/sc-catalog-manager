@@ -127,6 +127,40 @@ final class CatalogTextTests: XCTestCase {
         XCTAssertEqual(parsed.first?.sections[CoreConstants.publishDateSection], "23.07.2022")
     }
 
+    // MARK: - splitExtraSections (Quintessence)
+
+    func testSplitModulesAndSimilarities() {
+        let full = """
+        Intro paragraph one.
+        Intro paragraph two.
+        Constituent modules:
+        APS: Head
+        Facial Morphing
+        Similarities, differences, combinations:
+        Similar to X, different from Y.
+        """
+        let parts = CatalogText.splitExtraSections(full)
+        XCTAssertEqual(parts.full, "Intro paragraph one.\nIntro paragraph two.")
+        XCTAssertEqual(parts.modules, "APS: Head\nFacial Morphing")
+        XCTAssertEqual(parts.similarities, "Similar to X, different from Y.")
+    }
+
+    func testSplitSimilaritiesOnly() {
+        let full = "Main description.\nSimilarities, differences, combinations:\nCompares to Z."
+        let parts = CatalogText.splitExtraSections(full)
+        XCTAssertEqual(parts.full, "Main description.")
+        XCTAssertNil(parts.modules)
+        XCTAssertEqual(parts.similarities, "Compares to Z.")
+    }
+
+    func testSplitNoMarkersReturnsFullUnchanged() {
+        let full = "Just a plain description with the word modules inside but no heading."
+        let parts = CatalogText.splitExtraSections(full)
+        XCTAssertEqual(parts.full, full)
+        XCTAssertNil(parts.modules)
+        XCTAssertNil(parts.similarities)
+    }
+
     // MARK: - OrderedStringMap
 
     func testOrderedMapPreservesInsertionOrder() {

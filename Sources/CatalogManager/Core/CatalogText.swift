@@ -141,6 +141,51 @@ enum CatalogText {
         return parseCatalogText(text)
     }
 
+    // MARK: - Разбиение полного описания (Quintessence)
+
+    /// Делит плоский текст полного описания на основную часть и подсекции по
+    /// строкам-подзаголовкам «Constituent modules:» и «Similarities,
+    /// differences, combinations:». Отсутствующие части — nil. Подзаголовки в
+    /// результат не входят (становятся именами секций).
+    static func splitExtraSections(
+        _ fullText: String
+    ) -> (full: String, modules: String?, similarities: String?) {
+        let markers: [(marker: String, key: String)] = [
+            (CoreConstants.constituentModulesSection + ":", CoreConstants.constituentModulesSection),
+            (CoreConstants.similaritiesSection + ":", CoreConstants.similaritiesSection),
+        ]
+        let lines = fullText.components(separatedBy: "\n")
+
+        // Находим строки, целиком равные одному из подзаголовков, по порядку.
+        var found: [(index: Int, key: String)] = []
+        for (i, line) in lines.enumerated() {
+            let trimmed = line.trimmingCharacters(in: .whitespaces)
+            if let hit = markers.first(where: { $0.marker == trimmed }) {
+                found.append((i, hit.key))
+            }
+        }
+        if found.isEmpty { return (fullText, nil, nil) }
+
+        func joinTrim(_ range: Range<Int>) -> String {
+            lines[range].joined(separator: "\n").trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+
+        let full = joinTrim(0..<found[0].index)
+        var modules: String?
+        var similarities: String?
+        for (n, item) in found.enumerated() {
+            let end = n + 1 < found.count ? found[n + 1].index : lines.count
+            let content = joinTrim((item.index + 1)..<end)
+            if content.isEmpty { continue }
+            if item.key == CoreConstants.constituentModulesSection {
+                modules = content
+            } else {
+                similarities = content
+            }
+        }
+        return (full, modules, similarities)
+    }
+
     // MARK: - Дата публикации
 
     /// Преобразует ISO-8601 дату/время (например "2022-07-23T02:34:02+00:00")

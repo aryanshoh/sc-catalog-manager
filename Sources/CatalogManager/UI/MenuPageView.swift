@@ -174,6 +174,26 @@ struct MenuPageView: View {
                             .frame(maxWidth: 620, alignment: .leading)
                             .textSelection(.enabled)
                     }
+
+                    if let modules = trimmed(product.sections[CoreConstants.constituentModulesSection]) {
+                        SectionCaption(text: "CONSTITUENT MODULES", color: Theme.a(300))
+                        Text(modules)
+                            .font(.system(size: 13))
+                            .foregroundColor(Theme.n(200))
+                            .lineSpacing(5)
+                            .frame(maxWidth: 620, alignment: .leading)
+                            .textSelection(.enabled)
+                    }
+
+                    if let similarities = trimmed(product.sections[CoreConstants.similaritiesSection]) {
+                        SectionCaption(text: "SIMILARITIES, DIFFERENCES, COMBINATIONS", color: Theme.a(300))
+                        Text(similarities)
+                            .font(.system(size: 13))
+                            .foregroundColor(Theme.n(200))
+                            .lineSpacing(5)
+                            .frame(maxWidth: 620, alignment: .leading)
+                            .textSelection(.enabled)
+                    }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, 32)

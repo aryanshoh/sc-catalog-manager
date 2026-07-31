@@ -63,7 +63,7 @@ private func actualizeFull(
         let scraped: Product
         do {
             scraped = try await scraper.callWithReconnect("product \(i)/\(total)", log: log, cancel: cancel) {
-                try await scraper.fetchProduct(url, titleSuffixPattern: site.titleSuffixPattern)
+                try await scraper.fetchProduct(url, titleSuffixPattern: site.titleSuffixPattern, splitExtraSections: site.splitsExtraSections)
             }
         } catch is CancelledError {
             throw CancelledError()
@@ -168,7 +168,7 @@ private func actualizeSurface(
         let scraped: Product
         do {
             scraped = try await scraper.callWithReconnect("product \(i)/\(total)", log: log, cancel: cancel) {
-                try await scraper.fetchProduct(entry.url, titleSuffixPattern: site.titleSuffixPattern)
+                try await scraper.fetchProduct(entry.url, titleSuffixPattern: site.titleSuffixPattern, splitExtraSections: site.splitsExtraSections)
             }
         } catch is CancelledError {
             throw CancelledError()

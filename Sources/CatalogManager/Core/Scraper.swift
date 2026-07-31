@@ -402,7 +402,13 @@ final class Scraper: @unchecked Sendable {
     }
 
     /// Загружает страницу товара и возвращает структурированный Product.
-    func fetchProduct(_ productURL: String, titleSuffixPattern: String) async throws -> Product {
+    /// `splitExtraSections` (только Quintessence) выносит из полного описания
+    /// подсекции «Constituent modules» и «Similarities, differences, combinations».
+    func fetchProduct(
+        _ productURL: String,
+        titleSuffixPattern: String,
+        splitExtraSections: Bool = false
+    ) async throws -> Product {
         let html = try await fetch(productURL)
         let soup = try SwiftSoup.parse(html)
 
@@ -453,6 +459,14 @@ final class Scraper: @unchecked Sendable {
             ).remove()
             let text = try HTMLPlainText.plainText(from: summary)
             if !text.isEmpty { sections[CoreConstants.fullDescriptionSection] = text }
+        }
+
+        // Для Quintessence выносим модули и «сходства/различия» в свои секции.
+        if splitExtraSections, let fullText = sections[CoreConstants.fullDescriptionSection] {
+            let parts = CatalogText.splitExtraSections(fullText)
+            sections[CoreConstants.fullDescriptionSection] = parts.full.isEmpty ? nil : parts.full
+            if let modules = parts.modules { sections[CoreConstants.constituentModulesSection] = modules }
+            if let similarities = parts.similarities { sections[CoreConstants.similaritiesSection] = similarities }
         }
 
         return Product(title: title ?? "Untitled", sections: sections, url: productURL)
