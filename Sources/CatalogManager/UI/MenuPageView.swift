@@ -137,6 +137,15 @@ struct MenuPageView: View {
 
                     chips(product)
 
+                    if let date = trimmed(product.sections[CoreConstants.publishDateSection]) {
+                        SectionCaption(text: "ДАТА ПУБЛИКАЦИИ", color: Theme.a(300))
+                        Text(date)
+                            .font(.system(size: 13.5))
+                            .foregroundColor(Theme.n(100))
+                            .frame(maxWidth: 620, alignment: .leading)
+                            .textSelection(.enabled)
+                    }
+
                     if let short = trimmed(product.sections["Краткое описание"]) {
                         SectionCaption(text: "КРАТКОЕ ОПИСАНИЕ", color: Theme.a(300))
                         Text(short)

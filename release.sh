@@ -40,8 +40,10 @@ VERSION="$VERSION" BUILD="$BUILD" GH_OWNER="$GH_OWNER" GH_REPO="$GH_REPO" "$ROOT
 # --- 2. архив .app -----------------------------------------------------------
 echo "▸ Архивация .app…"
 mkdir -p "$UPDATES"
+# Чистим папку от прошлых версий: у нас модель «в последнем релизе лежит appcast
+# только на текущую версию» (URL старых zip указывали бы на другой релиз).
+rm -f "$UPDATES"/*.zip "$UPDATES"/appcast.xml
 ZIP="$UPDATES/CatalogManager-$VERSION.zip"
-rm -f "$ZIP"
 ditto -c -k --keepParent "$APP" "$ZIP"
 
 # --- 3. подпись + appcast ----------------------------------------------------
