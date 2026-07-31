@@ -32,6 +32,8 @@ PLAIN = {
     "SubliminalClub — содержимое страниц продуктов": "SubliminalClub — product page contents",
     "Quintessence (q.subliminalclub.com) — содержимое страниц продуктов":
         "Quintessence (q.subliminalclub.com) — product page contents",
+    "Quintessence (q.subliminalclub.com) — описания продуктов":
+        "Quintessence (q.subliminalclub.com) — product descriptions",
     "Количество найденных товаров:": "Products found:",
 }
 
