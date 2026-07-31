@@ -21,10 +21,9 @@ BUILD="${BUILD:-2}"
 MIN_MACOS="14.0"
 
 # --- авто-обновление (Sparkle) ----------------------------------------------
-# Ваш GitHub для хостинга обновлений (appcast + zip лежат в Releases).
-# Заполните GH_OWNER/GH_REPO своими значениями (или задайте их в окружении).
-GH_OWNER="${GH_OWNER:-OWNER}"
-GH_REPO="${GH_REPO:-REPO}"
+# GitHub для хостинга обновлений (appcast + zip лежат в Releases).
+GH_OWNER="${GH_OWNER:-aryanshoh}"
+GH_REPO="${GH_REPO:-sc-catalog-manager}"
 # «latest/download» всегда отдаёт ассет из последнего релиза — стабильный URL.
 FEED_URL="https://github.com/$GH_OWNER/$GH_REPO/releases/latest/download/appcast.xml"
 # Публичный ключ EdDSA (приватный — в Keychain, им подписывается каждый релиз).
