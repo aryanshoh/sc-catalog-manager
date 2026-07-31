@@ -48,14 +48,14 @@ struct SidebarView: View {
     @ObservedObject var app: AppState
 
     private static let sectionRows: [(AppState.Section, String, String)] = [
-        (.menu, "Меню продуктов", "square.grid.2x2"),
-        (.actualize, "Актуализация каталога", "arrow.clockwise"),
-        (.export, "Экспорт", "square.and.arrow.up"),
+        (.menu, "Product menu", "square.grid.2x2"),
+        (.actualize, "Catalog update", "arrow.clockwise"),
+        (.export, "Export", "square.and.arrow.up"),
     ]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            SectionCaption(text: "САЙТ").padding(.horizontal, 8).padding(.top, 6).padding(.bottom, 2)
+            SectionCaption(text: "SITE").padding(.horizontal, 8).padding(.top, 6).padding(.bottom, 2)
             ForEach(Sites.all) { site in
                 SidebarRow(
                     title: site.shortLabel,
@@ -66,7 +66,7 @@ struct SidebarView: View {
                 .opacity(app.isRunning && site.key != app.activeSiteKey ? 0.5 : 1)
             }
 
-            SectionCaption(text: "РАЗДЕЛЫ").padding(.horizontal, 8).padding(.top, 14).padding(.bottom, 2)
+            SectionCaption(text: "SECTIONS").padding(.horizontal, 8).padding(.top, 14).padding(.bottom, 2)
             ForEach(Self.sectionRows, id: \.0) { section, label, icon in
                 SidebarRow(
                     title: label,
@@ -75,7 +75,7 @@ struct SidebarView: View {
                 ) { app.switchSection(section) }
             }
 
-            SectionCaption(text: "ОФОРМЛЕНИЕ").padding(.horizontal, 8).padding(.top, 14).padding(.bottom, 2)
+            SectionCaption(text: "APPEARANCE").padding(.horizontal, 8).padding(.top, 14).padding(.bottom, 2)
             ForEach(ThemeID.allCases) { theme in
                 SidebarRow(
                     title: theme.title,
@@ -98,8 +98,8 @@ struct SidebarView: View {
 
     private var footer: some View {
         let state = app.currentState
-        let name = state.path?.lastPathComponent ?? "новый каталог (не сохранён)"
-        let suffix = state.dirty ? " · не сохранено" : " · сохранено"
+        let name = state.path?.lastPathComponent ?? "new catalog (not saved)"
+        let suffix = state.dirty ? " · unsaved" : " · saved"
         return VStack(alignment: .leading, spacing: 2) {
             HStack(spacing: 6) {
                 Image(systemName: "doc.text")
@@ -110,7 +110,7 @@ struct SidebarView: View {
                     .foregroundColor(Theme.n(300))
                     .lineLimit(2)
             }
-            Text("\(state.products.count) продуктов\(suffix)")
+            Text("\(state.products.count) products\(suffix)")
                 .font(.system(size: 11.5))
                 .foregroundColor(Theme.n(400))
         }

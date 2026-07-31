@@ -8,18 +8,18 @@ struct ExportPageView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            Text("Экспорт каталога")
+            Text("Catalog export")
                 .font(.system(size: 24, weight: .medium))
                 .foregroundColor(Theme.n(100))
 
-            Text("Экспортирует все товары текущего каталога вместе с их описаниями в один txt-файл, отсортированный по названию.")
+            Text("Exports all products of the current catalog together with their descriptions into a single txt file, sorted by name.")
                 .font(.system(size: 13))
                 .foregroundColor(Theme.n(300))
                 .frame(maxWidth: 640, alignment: .leading)
                 .fixedSize(horizontal: false, vertical: true)
 
             HStack(spacing: 10) {
-                NocturneButton(title: "Экспортировать в TXT…", systemImage: "square.and.arrow.up", kind: .primary) {
+                NocturneButton(title: "Export to TXT…", systemImage: "square.and.arrow.up", kind: .primary) {
                     app.exportCatalog()
                 }
                 if let name = app.exportSuccessName {
@@ -27,7 +27,7 @@ struct ExportPageView: View {
                         Image(systemName: "checkmark")
                             .font(.system(size: 11))
                             .foregroundColor(Theme.a(100))
-                        Text("\(name) сохранён")
+                        Text("\(name) saved")
                             .font(.system(size: 11.5))
                             .foregroundColor(Theme.a(100))
                     }
@@ -52,7 +52,7 @@ struct ExportPageView: View {
             CatalogText.normalizeTitle($0.title) < CatalogText.normalizeTitle($1.title)
         }
         return VStack(alignment: .leading, spacing: 10) {
-            SectionCaption(text: "ПРЕДПРОСМОТР · ПО АЛФАВИТУ")
+            SectionCaption(text: "PREVIEW · ALPHABETICAL")
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
                     ForEach(Array(ordered.enumerated()), id: \.offset) { index, product in
@@ -85,7 +85,7 @@ struct ExportPageView: View {
     }
 
     private func shortDesc(_ product: Product) -> String? {
-        let s = (product.sections["Краткое описание"] ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        let s = (product.sections[CoreConstants.shortDescriptionSection] ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
         return s.isEmpty ? nil : s
     }
 }

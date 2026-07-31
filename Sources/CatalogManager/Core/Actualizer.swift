@@ -51,10 +51,10 @@ private func actualizeFull(
     var unchanged: [String] = []
     var failed: [(url: String, error: String)] = []
 
-    log("Полная актуализация. Собираю ссылки на товары (\(site.label))…")
+    log("Full update. Collecting product links (\(site.label))…")
     let links = try await scraper.collectProductLinks(shopURL: site.shopURL, log: log, cancel: cancel)
     let total = links.count
-    log("Всего товаров на сайте: \(total)")
+    log("Total products on the site: \(total)")
 
     for (offset, url) in links.enumerated() {
         let i = offset + 1
@@ -62,7 +62,7 @@ private func actualizeFull(
 
         let scraped: Product
         do {
-            scraped = try await scraper.callWithReconnect("товар \(i)/\(total)", log: log, cancel: cancel) {
+            scraped = try await scraper.callWithReconnect("product \(i)/\(total)", log: log, cancel: cancel) {
                 try await scraper.fetchProduct(url, titleSuffixPattern: site.titleSuffixPattern)
             }
         } catch is CancelledError {
@@ -70,7 +70,7 @@ private func actualizeFull(
         } catch {
             let message = errorMessage(error)
             failed.append((url: url, error: message))
-            log("[\(i)/\(total)] Ошибка загрузки \(url): \(message)")
+            log("[\(i)/\(total)] Load error \(url): \(message)")
             progress?(i, total)
             try await Scraper.humanPacingSleep(cancel: cancel)
             continue
@@ -84,7 +84,7 @@ private func actualizeFull(
             if localProduct.signature() != scraped.signature() {
                 resultCatalog[idx] = scraped
                 updated.append(scraped.title)
-                log("[\(i)/\(total)] Обновлено: \(scraped.title)")
+                log("[\(i)/\(total)] Updated: \(scraped.title)")
             } else {
                 // Отслеживаемые поля не изменились. Даты публикации и изменения
                 // в signature() не входят, поэтому подтягиваем их со свежей
@@ -103,9 +103,9 @@ private func actualizeFull(
                     localProduct.sections[CoreConstants.modifiedDateSection] = newModified
                 }
                 if !oldModified.isEmpty, !newModified.isEmpty, oldModified != newModified {
-                    log("[\(i)/\(total)] Изменено на сайте (дата \(oldModified) → \(newModified)): \(scraped.title)")
+                    log("[\(i)/\(total)] Changed on the site (date \(oldModified) → \(newModified)): \(scraped.title)")
                 } else {
-                    log("[\(i)/\(total)] Без изменений: \(scraped.title)")
+                    log("[\(i)/\(total)] No changes: \(scraped.title)")
                 }
                 unchanged.append(scraped.title)
             }
@@ -113,7 +113,7 @@ private func actualizeFull(
             resultCatalog.append(scraped)
             indexByNorm[normTitle] = resultCatalog.count - 1
             added.append(scraped.title)
-            log("[\(i)/\(total)] Добавлено: \(scraped.title)")
+            log("[\(i)/\(total)] Added: \(scraped.title)")
         }
 
         progress?(i, total)
@@ -146,10 +146,10 @@ private func actualizeSurface(
     var unchanged: [String] = []   // уже есть в каталоге
     var failed: [(url: String, error: String)] = []
 
-    log("Поверхностная актуализация. Собираю названия товаров со страниц магазина (\(site.label))…")
+    log("Surface update. Collecting product names from shop pages (\(site.label))…")
     let entries = try await scraper.collectProductEntries(shopURL: site.shopURL, log: log, cancel: cancel)
     let total = entries.count
-    log("Всего товаров на сайте: \(total)")
+    log("Total products on the site: \(total)")
 
     for (offset, entry) in entries.enumerated() {
         let i = offset + 1
@@ -159,7 +159,7 @@ private func actualizeSurface(
         // без захода в карточку (главная экономия поверхностного режима).
         if let title = entry.title, existing.contains(CatalogText.normalizeTitle(title)) {
             unchanged.append(title)
-            log("[\(i)/\(total)] Уже в каталоге: \(title)")
+            log("[\(i)/\(total)] Already in catalog: \(title)")
             progress?(i, total)
             continue
         }
@@ -167,7 +167,7 @@ private func actualizeSurface(
         // Новый (или название из списка не прочиталось) — заходим в карточку.
         let scraped: Product
         do {
-            scraped = try await scraper.callWithReconnect("товар \(i)/\(total)", log: log, cancel: cancel) {
+            scraped = try await scraper.callWithReconnect("product \(i)/\(total)", log: log, cancel: cancel) {
                 try await scraper.fetchProduct(entry.url, titleSuffixPattern: site.titleSuffixPattern)
             }
         } catch is CancelledError {
@@ -175,7 +175,7 @@ private func actualizeSurface(
         } catch {
             let message = errorMessage(error)
             failed.append((url: entry.url, error: message))
-            log("[\(i)/\(total)] Ошибка загрузки \(entry.url): \(message)")
+            log("[\(i)/\(total)] Load error \(entry.url): \(message)")
             progress?(i, total)
             try await Scraper.humanPacingSleep(cancel: cancel)
             continue
@@ -184,12 +184,12 @@ private func actualizeSurface(
         let normTitle = CatalogText.normalizeTitle(scraped.title)
         if existing.contains(normTitle) {
             unchanged.append(scraped.title)
-            log("[\(i)/\(total)] Уже в каталоге: \(scraped.title)")
+            log("[\(i)/\(total)] Already in catalog: \(scraped.title)")
         } else {
             resultCatalog.append(scraped)
             existing.insert(normTitle)
             added.append(scraped.title)
-            log("[\(i)/\(total)] Добавлено: \(scraped.title)")
+            log("[\(i)/\(total)] Added: \(scraped.title)")
         }
 
         progress?(i, total)

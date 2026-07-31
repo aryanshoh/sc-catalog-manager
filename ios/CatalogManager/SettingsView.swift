@@ -17,7 +17,7 @@ struct SettingsView: View {
             }
             .scrollContentBackground(.hidden)
             .background(ThemedBackground(theme: app.themeID))
-            .navigationTitle("Настройки")
+            .navigationTitle("Settings")
         }
     }
 
@@ -44,10 +44,10 @@ struct SettingsView: View {
                 .listRowBackground(Theme.n(900))
             }
         } header: {
-            Text("Сайт").foregroundColor(Theme.n(400))
+            Text("Site").foregroundColor(Theme.n(400))
         } footer: {
             if app.isRunning {
-                Text("Во время актуализации переключение сайта недоступно.")
+                Text("Switching sites is unavailable during an update.")
                     .foregroundColor(Theme.n(400))
             }
         }
@@ -59,9 +59,9 @@ struct SettingsView: View {
             HStack {
                 Image(systemName: "doc.text").foregroundColor(Theme.n(300)).frame(width: 22)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(state.path?.lastPathComponent ?? "новый каталог (не сохранён)")
+                    Text(state.path?.lastPathComponent ?? "new catalog (not saved)")
                         .foregroundColor(Theme.n(100)).lineLimit(2)
-                    Text("\(state.products.count) продуктов · \(state.dirty ? "не сохранено" : "сохранено")")
+                    Text("\(state.products.count) products · \(state.dirty ? "unsaved" : "saved")")
                         .font(.system(size: 12)).foregroundColor(Theme.n(400))
                 }
             }
@@ -70,14 +70,14 @@ struct SettingsView: View {
             Button {
                 Task { await app.requestOpenCatalog() }
             } label: {
-                Label("Открыть каталог…", systemImage: "folder").foregroundColor(Theme.n(100))
+                Label("Open catalog…", systemImage: "folder").foregroundColor(Theme.n(100))
             }
             .listRowBackground(Theme.n(900))
 
             Button {
                 Task { await app.saveCatalog() }
             } label: {
-                Label("Сохранить", systemImage: "square.and.arrow.down").foregroundColor(Theme.n(100))
+                Label("Save", systemImage: "square.and.arrow.down").foregroundColor(Theme.n(100))
             }
             .disabled(app.currentState.products.isEmpty)
             .listRowBackground(Theme.n(900))
@@ -85,12 +85,12 @@ struct SettingsView: View {
             Button {
                 app.saveCatalogAs()
             } label: {
-                Label("Сохранить как…", systemImage: "square.and.arrow.down.on.square").foregroundColor(Theme.n(100))
+                Label("Save As…", systemImage: "square.and.arrow.down.on.square").foregroundColor(Theme.n(100))
             }
             .disabled(app.currentState.products.isEmpty)
             .listRowBackground(Theme.n(900))
         } header: {
-            Text("Файл").foregroundColor(Theme.n(400))
+            Text("File").foregroundColor(Theme.n(400))
         }
     }
 
@@ -112,7 +112,7 @@ struct SettingsView: View {
                 .listRowBackground(Theme.n(900))
             }
         } header: {
-            Text("Оформление").foregroundColor(Theme.n(400))
+            Text("Appearance").foregroundColor(Theme.n(400))
         }
     }
 
@@ -123,7 +123,7 @@ struct SettingsView: View {
                 .foregroundColor(Theme.n(300))
                 .listRowBackground(Theme.n(900))
         } header: {
-            Text("Статус").foregroundColor(Theme.n(400))
+            Text("Status").foregroundColor(Theme.n(400))
         }
     }
 }

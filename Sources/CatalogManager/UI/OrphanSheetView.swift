@@ -47,18 +47,18 @@ struct OrphanSheetView: View {
                 Image(systemName: "exclamationmark.circle")
                     .font(.system(size: 18))
                     .foregroundColor(Theme.a(300))
-                Text("Товары, отсутствующие на сайте")
+                Text("Products missing on the site")
                     .font(.system(size: 16, weight: .semibold))
                     .foregroundColor(Theme.n(100))
                 Spacer()
             }
-            Text("На сайте не найдено \(context.orphans.count) товар(ов) из локального каталога. Отметьте те, что нужно оставить — неотмеченные будут удалены после «Применить».")
+            Text("\(context.orphans.count) product(s) from the local catalog were not found on the site. Check the ones to keep — unchecked ones will be removed after “Apply”.")
                 .font(.system(size: 12.5))
                 .foregroundColor(Theme.n(300))
                 .fixedSize(horizontal: false, vertical: true)
             HStack(spacing: 8) {
-                NocturneButton(title: "Оставить все", kind: .ghost) { setAll(true) }
-                NocturneButton(title: "Удалить все", kind: .ghost) { setAll(false) }
+                NocturneButton(title: "Keep all", kind: .ghost) { setAll(true) }
+                NocturneButton(title: "Remove all", kind: .ghost) { setAll(false) }
                 Spacer()
             }
             .padding(.top, 2)
@@ -81,7 +81,7 @@ struct OrphanSheetView: View {
             }
             .toggleStyle(.checkbox)
             Spacer()
-            Text(isKept ? "оставить" : "будет удалён")
+            Text(isKept ? "keep" : "will be removed")
                 .font(.system(size: 11.5))
                 .foregroundColor(isKept ? Theme.a(300) : Theme.n(400))
         }
@@ -90,7 +90,7 @@ struct OrphanSheetView: View {
     private var footer: some View {
         HStack {
             Spacer()
-            NocturneButton(title: "Применить", kind: .primary) {
+            NocturneButton(title: "Apply", kind: .primary) {
                 let toRemove = context.orphans.filter { !(keep[$0.id] ?? true) }
                 onApply(toRemove)
             }

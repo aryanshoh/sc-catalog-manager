@@ -11,16 +11,16 @@ struct RootView: View {
     var body: some View {
         TabView {
             MenuView(app: app)
-                .tabItem { Label("Каталог", systemImage: "square.grid.2x2") }
+                .tabItem { Label("Catalog", systemImage: "square.grid.2x2") }
 
             ActualizeView(app: app)
-                .tabItem { Label("Актуализация", systemImage: "arrow.clockwise") }
+                .tabItem { Label("Update", systemImage: "arrow.clockwise") }
 
             ExportView(app: app)
-                .tabItem { Label("Экспорт", systemImage: "square.and.arrow.up") }
+                .tabItem { Label("Export", systemImage: "square.and.arrow.up") }
 
             SettingsView(app: app)
-                .tabItem { Label("Настройки", systemImage: "gearshape") }
+                .tabItem { Label("Settings", systemImage: "gearshape") }
         }
         .tint(Theme.accent)
         // Открытие каталога (аналог NSOpenPanel)

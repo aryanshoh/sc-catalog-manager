@@ -28,7 +28,7 @@ enum ScrapeError: LocalizedError {
         case .runtime(let message):
             return message
         case .http(let status, let url):
-            return "HTTP \(status) для \(url)"
+            return "HTTP \(status) for \(url)"
         }
     }
 }
@@ -82,7 +82,7 @@ final class Scraper: @unchecked Sendable {
     /// Retry) и особой обработкой 403 (как fetch() в Python).
     func fetch(_ urlString: String) async throws -> String {
         guard let url = URL(string: urlString) else {
-            throw ScrapeError.runtime("Некорректный URL: \(urlString)")
+            throw ScrapeError.runtime("Invalid URL: \(urlString)")
         }
 
         var attempt = 0
@@ -102,8 +102,8 @@ final class Scraper: @unchecked Sendable {
             }
             if status == 403 {
                 throw ScrapeError.runtime(
-                    "Сайт вернул HTTP 403 для \(urlString). Возможно, сработала защита сайта. "
-                    + "Попробуйте запустить актуализацию позже."
+                    "The site returned HTTP 403 for \(urlString). The site's protection may have triggered. "
+                    + "Try running the update later."
                 )
             }
             if status >= 400 {
@@ -158,9 +158,9 @@ final class Scraper: @unchecked Sendable {
             } catch let error as URLError where Scraper.isNetworkError(error) {
                 attempt += 1
                 log(
-                    "Нет соединения с сетью (\(description)), попытка \(attempt): "
-                    + "\(error.localizedDescription). Повторю через \(Int(delay)) с — "
-                    + "актуализацию можно остановить кнопкой «Остановить»."
+                    "No network connection (\(description)), attempt \(attempt): "
+                    + "\(error.localizedDescription). Retrying in \(Int(delay)) s — "
+                    + "you can stop the update with the “Stop” button."
                 )
                 try await Scraper.interruptibleSleep(delay, cancel: cancel)
                 delay = min(delay * 2, maxDelay)
@@ -259,10 +259,10 @@ final class Scraper: @unchecked Sendable {
             if visitedPages.contains(pageURL) { break }
             visitedPages.insert(pageURL)
 
-            log("Каталог: страница \(pageNumber) — \(pageURL)")
+            log("Catalog: page \(pageNumber) — \(pageURL)")
             let currentPage = pageURL
             let html = try await callWithReconnect(
-                "страница каталога \(pageNumber)", log: log, cancel: cancel
+                "catalog page \(pageNumber)", log: log, cancel: cancel
             ) {
                 try await self.fetch(currentPage)
             }
@@ -275,7 +275,7 @@ final class Scraper: @unchecked Sendable {
                 entries.append(entry)
                 foundOnPage += 1
             }
-            log("Найдено новых товаров: \(foundOnPage); всего уникальных: \(entries.count)")
+            log("New products found: \(foundOnPage); total unique: \(entries.count)")
 
             var nextHref = try soup.select("a.next.page-numbers[href]").first()?.attr("href")
             if nextHref == nil || nextHref?.isEmpty == true {
@@ -287,12 +287,12 @@ final class Scraper: @unchecked Sendable {
             try await Scraper.humanPacingSleep(cancel: cancel)
 
             if pageNumber == CoreConstants.maxCatalogPages {
-                throw ScrapeError.runtime("Достигнут лимит MAX_CATALOG_PAGES=\(CoreConstants.maxCatalogPages).")
+                throw ScrapeError.runtime("Reached the MAX_CATALOG_PAGES=\(CoreConstants.maxCatalogPages) limit.")
             }
         }
 
         if entries.isEmpty {
-            throw ScrapeError.runtime("Не удалось найти ни одной ссылки товара в каталоге сайта.")
+            throw ScrapeError.runtime("Could not find any product links in the site catalog.")
         }
         return entries
     }
@@ -410,7 +410,7 @@ final class Scraper: @unchecked Sendable {
         if title == nil {
             let ogTitle = (try soup.select("meta[property='og:title'][content]").first()?.attr("content")) ?? ""
             var candidate = ogTitle.trimmingCharacters(in: .whitespacesAndNewlines)
-            if candidate.isEmpty { candidate = "Без названия" }
+            if candidate.isEmpty { candidate = "Untitled" }
             candidate = RegexPattern("\\s*[-|]\\s*(?:\(titleSuffixPattern))\\s*$", options: [.caseInsensitive])
                 .replacingMatches(in: candidate, with: "")
             title = candidate
@@ -423,14 +423,14 @@ final class Scraper: @unchecked Sendable {
             + ".woocommerce-product-details__short-description"
         ).first() {
             let text = try HTMLPlainText.plainText(from: shortDesc)
-            if !text.isEmpty { sections["Краткое описание"] = text }
+            if !text.isEmpty { sections[CoreConstants.shortDescriptionSection] = text }
         }
 
         let (categories, tags) = try extractMetaLine(soup)
         var metaLines: [String] = []
         if !categories.isEmpty { metaLines.append("Categories: " + categories.joined(separator: ", ")) }
         if !tags.isEmpty { metaLines.append("Tags: " + tags.joined(separator: ", ")) }
-        if !metaLines.isEmpty { sections["Категории и теги"] = metaLines.joined(separator: "\n") }
+        if !metaLines.isEmpty { sections[CoreConstants.categoriesSection] = metaLines.joined(separator: "\n") }
 
         if let publishDate = try extractPublishDate(soup) {
             sections[CoreConstants.publishDateSection] = publishDate
@@ -445,16 +445,16 @@ final class Scraper: @unchecked Sendable {
             + ".woocommerce-tabs .panel.entry-content"
         ).first() {
             let text = try HTMLPlainText.plainText(from: description)
-            if !text.isEmpty { sections["Полное описание"] = text }
+            if !text.isEmpty { sections[CoreConstants.fullDescriptionSection] = text }
         } else if let summary = try soup.select(".summary.entry-summary").first() {
             try summary.select(
                 "form, button, input, select, .quantity, .cart, .product_meta, "
                 + ".price, .woocommerce-product-rating, h1"
             ).remove()
             let text = try HTMLPlainText.plainText(from: summary)
-            if !text.isEmpty { sections["Полное описание"] = text }
+            if !text.isEmpty { sections[CoreConstants.fullDescriptionSection] = text }
         }
 
-        return Product(title: title ?? "Без названия", sections: sections, url: productURL)
+        return Product(title: title ?? "Untitled", sections: sections, url: productURL)
     }
 }

@@ -45,7 +45,7 @@ final class NetworkSmokeTests: XCTestCase {
         print("URL:        \(first)")
         print("Название:   \(product.title)")
         print("Категории:  \(product.categories())")
-        print("Теги:       \(CatalogText.parseTags(product.sections["Категории и теги"] ?? ""))")
+        print("Теги:       \(CatalogText.parseTags(product.sections[CoreConstants.categoriesSection] ?? ""))")
         for name in CoreConstants.sectionOrder {
             if let value = product.sections[name], !value.isEmpty {
                 let preview = value.replacingOccurrences(of: "\n", with: " ⏎ ").prefix(200)
@@ -54,7 +54,7 @@ final class NetworkSmokeTests: XCTestCase {
         }
 
         XCTAssertFalse(product.title.isEmpty)
-        XCTAssertNotEqual(product.title, "Без названия", "Не удалось извлечь название товара")
+        XCTAssertNotEqual(product.title, "Untitled", "Не удалось извлечь название товара")
     }
 
     func testSurfaceListingTitles() async throws {

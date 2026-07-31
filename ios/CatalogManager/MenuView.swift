@@ -20,7 +20,7 @@ struct MenuView: View {
             .navigationTitle(app.currentSite.shortLabel)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { toolbarContent }
-            .searchable(text: $app.searchQuery, prompt: "Поиск по названию")
+            .searchable(text: $app.searchQuery, prompt: "Search by name")
         }
     }
 
@@ -61,15 +61,15 @@ struct MenuView: View {
             Image(systemName: "rectangle.stack")
                 .font(.system(size: 44))
                 .foregroundColor(Theme.n(400))
-            Text("Каталог не открыт")
+            Text("No catalog open")
                 .font(.system(size: 17, weight: .medium))
                 .foregroundColor(Theme.n(200))
-            Text("Откройте txt-каталог или запустите актуализацию, чтобы наполнить его.")
+            Text("Open a txt catalog or run an update to fill it.")
                 .font(.system(size: 14))
                 .foregroundColor(Theme.n(400))
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 40)
-            NocturneButton(title: "Открыть каталог", systemImage: "folder", kind: .primary) {
+            NocturneButton(title: "Open catalog", systemImage: "folder", kind: .primary) {
                 Task { await app.requestOpenCatalog() }
             }
             .fixedSize()
@@ -84,7 +84,7 @@ struct MenuView: View {
             if app.currentState.dirty {
                 HStack(spacing: 5) {
                     Circle().fill(Theme.accent).frame(width: 7, height: 7)
-                    Text("не сохранено").font(.system(size: 12)).foregroundColor(Theme.n(300))
+                    Text("unsaved").font(.system(size: 12)).foregroundColor(Theme.n(300))
                 }
             }
         }
@@ -92,16 +92,16 @@ struct MenuView: View {
             Menu {
                 Button {
                     Task { await app.requestOpenCatalog() }
-                } label: { Label("Открыть…", systemImage: "folder") }
+                } label: { Label("Open…", systemImage: "folder") }
 
                 Button {
                     Task { await app.saveCatalog() }
-                } label: { Label("Сохранить", systemImage: "square.and.arrow.down") }
+                } label: { Label("Save", systemImage: "square.and.arrow.down") }
                 .disabled(app.currentState.products.isEmpty)
 
                 Button {
                     app.saveCatalogAs()
-                } label: { Label("Сохранить как…", systemImage: "square.and.arrow.down.on.square") }
+                } label: { Label("Save As…", systemImage: "square.and.arrow.down.on.square") }
                 .disabled(app.currentState.products.isEmpty)
             } label: {
                 Image(systemName: "ellipsis.circle")
@@ -127,7 +127,7 @@ struct ProductDetailView: View {
                 chips
 
                 if let date = trimmed(product.sections[CoreConstants.publishDateSection]) {
-                    SectionCaption(text: "ДАТА ПУБЛИКАЦИИ", color: Theme.a(300))
+                    SectionCaption(text: "PUBLICATION DATE", color: Theme.a(300))
                     Text(date)
                         .font(.system(size: 15))
                         .foregroundColor(Theme.n(100))
@@ -135,15 +135,15 @@ struct ProductDetailView: View {
                 }
 
                 if let modified = trimmed(product.sections[CoreConstants.modifiedDateSection]) {
-                    SectionCaption(text: "ДАТА ИЗМЕНЕНИЯ", color: Theme.a(300))
+                    SectionCaption(text: "MODIFICATION DATE", color: Theme.a(300))
                     Text(modified)
                         .font(.system(size: 15))
                         .foregroundColor(Theme.n(100))
                         .textSelection(.enabled)
                 }
 
-                if let short = trimmed(product.sections["Краткое описание"]) {
-                    SectionCaption(text: "КРАТКОЕ ОПИСАНИЕ", color: Theme.a(300))
+                if let short = trimmed(product.sections[CoreConstants.shortDescriptionSection]) {
+                    SectionCaption(text: "SHORT DESCRIPTION", color: Theme.a(300))
                     Text(short)
                         .font(.system(size: 15))
                         .foregroundColor(Theme.n(100))
@@ -151,8 +151,8 @@ struct ProductDetailView: View {
                         .textSelection(.enabled)
                 }
 
-                if let full = trimmed(product.sections["Полное описание"]) {
-                    SectionCaption(text: "ПОЛНОЕ ОПИСАНИЕ", color: Theme.a(300))
+                if let full = trimmed(product.sections[CoreConstants.fullDescriptionSection]) {
+                    SectionCaption(text: "FULL DESCRIPTION", color: Theme.a(300))
                     Text(full)
                         .font(.system(size: 14))
                         .foregroundColor(Theme.n(200))
@@ -164,13 +164,13 @@ struct ProductDetailView: View {
             .padding(20)
         }
         .background(ThemedBackground(theme: themeID))
-        .navigationTitle("Товар")
+        .navigationTitle("Product")
         .navigationBarTitleDisplayMode(.inline)
     }
 
     private var chips: some View {
         let categories = product.categories()
-        let tags = CatalogText.parseTags(product.sections["Категории и теги"] ?? "")
+        let tags = CatalogText.parseTags(product.sections[CoreConstants.categoriesSection] ?? "")
         return FlowLayout(hSpacing: 6, vSpacing: 6) {
             ForEach(Array(categories.enumerated()), id: \.offset) { _, cat in
                 TagChip(text: cat, kind: .accent)

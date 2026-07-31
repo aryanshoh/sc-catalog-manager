@@ -26,7 +26,7 @@ struct OrphanView: View {
                         row(product)
                     }
                 } header: {
-                    Text("На сайте не найдено \(context.orphans.count) товар(ов). Отметьте те, что нужно оставить — снятые будут удалены после «Применить».")
+                    Text("\(context.orphans.count) product(s) were not found on the site. Check the ones to keep — unchecked ones will be removed after “Apply”.")
                         .textCase(nil)
                         .font(.system(size: 13))
                         .foregroundColor(Theme.n(300))
@@ -34,17 +34,17 @@ struct OrphanView: View {
             }
             .scrollContentBackground(.hidden)
             .background(ThemedBackground(theme: themeID))
-            .navigationTitle("Отсутствуют на сайте")
+            .navigationTitle("Missing on the site")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Menu("Все") {
-                        Button("Оставить все") { setAll(true) }
-                        Button("Удалить все") { setAll(false) }
+                    Menu("All") {
+                        Button("Keep all") { setAll(true) }
+                        Button("Remove all") { setAll(false) }
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Применить") {
+                    Button("Apply") {
                         let toRemove = context.orphans.filter { !(keep[$0.id] ?? true) }
                         onApply(toRemove)
                         dismiss()
@@ -70,7 +70,7 @@ struct OrphanView: View {
                 Text(product.title)
                     .font(.system(size: 15))
                     .foregroundColor(Theme.n(100))
-                Text(isKept ? "останется в каталоге" : "будет удалён")
+                Text(isKept ? "will be kept" : "will be removed")
                     .font(.system(size: 12))
                     .foregroundColor(isKept ? Theme.a(300) : Theme.n(400))
             }

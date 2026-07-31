@@ -54,7 +54,7 @@ enum CatalogText {
 
     private static let blockSplit = RegexPattern("\\n\\n=+\\n\\n")
     private static let headerSplit = RegexPattern(
-        "^(.*?)\\n\\n(Количество найденных товаров:.*?)\\n\\n(.*)$",
+        "^(.*?)\\n\\n(Products found:.*?)\\n\\n(.*)$",
         options: [.dotMatchesLineSeparators]
     )
 
@@ -94,7 +94,7 @@ enum CatalogText {
         let title = lines[0].trimmingCharacters(in: .whitespacesAndNewlines)
         let rest = lines.dropFirst().joined(separator: "\n").strippingNewlines()
 
-        let knownHeaders = CoreConstants.sectionOrder + ["Описание", "Содержимое"]
+        let knownHeaders = CoreConstants.sectionOrder + ["Description", "Content"]
         let escaped = knownHeaders.map { NSRegularExpression.escapedPattern(for: $0) }
         let headerPattern = RegexPattern("\\n\\n(" + escaped.joined(separator: "|") + ")\\n\\n")
 
@@ -103,8 +103,8 @@ enum CatalogText {
             let searchText = "\n\n" + rest
             let matches = headerPattern.allMatches(in: searchText)
             if matches.isEmpty {
-                // Нет узнаваемых заголовков — сохраняем всё как "Полное описание".
-                sections["Полное описание"] = rest.trimmingCharacters(in: .whitespacesAndNewlines)
+                // Нет узнаваемых заголовков — сохраняем всё как полное описание.
+                sections[CoreConstants.fullDescriptionSection] = rest.trimmingCharacters(in: .whitespacesAndNewlines)
             } else {
                 for (index, match) in matches.enumerated() {
                     let name = match.group(1) ?? ""
@@ -124,7 +124,7 @@ enum CatalogText {
     // MARK: - Сериализация
 
     static func serializeCatalog(_ products: [Product], header: String = Sites.default.catalogHeader) -> String {
-        let headerLine = "\(header)\n\nКоличество найденных товаров: \(products.count)"
+        let headerLine = "\(header)\n\nProducts found: \(products.count)"
         let blocks = products.map { $0.toBlock() }
         let body = blocks.joined(separator: "\n\n\(CoreConstants.separatorLine)\n\n")
         let content = body.isEmpty ? headerLine : "\(headerLine)\n\n\(body)"

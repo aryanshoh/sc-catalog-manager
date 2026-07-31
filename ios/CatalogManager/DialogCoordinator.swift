@@ -86,14 +86,14 @@ struct DialogHost: ViewModifier {
         ) { request in
             switch request.kind {
             case .confirm:
-                Button("Да", role: .destructive) { dialogs.resolve(1) }
-                Button("Отмена", role: .cancel) { dialogs.resolve(0) }
+                Button("Yes", role: .destructive) { dialogs.resolve(1) }
+                Button("Cancel", role: .cancel) { dialogs.resolve(0) }
             case .info, .error:
                 Button("OK", role: .cancel) { dialogs.resolve(1) }
             case .conflict:
-                Button("Перезагрузить с диска") { dialogs.resolve(2) }
-                Button("Перезаписать", role: .destructive) { dialogs.resolve(1) }
-                Button("Отмена", role: .cancel) { dialogs.resolve(0) }
+                Button("Reload from disk") { dialogs.resolve(2) }
+                Button("Overwrite", role: .destructive) { dialogs.resolve(1) }
+                Button("Cancel", role: .cancel) { dialogs.resolve(0) }
             }
         } message: { request in
             Text(request.message)

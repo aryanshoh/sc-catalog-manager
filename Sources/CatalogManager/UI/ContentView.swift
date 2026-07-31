@@ -40,7 +40,7 @@ struct ContentView: View {
             Spacer().frame(width: 68)
             Spacer()
             HStack(spacing: 6) {
-                Text("Менеджер каталога — \(app.currentSite.shortLabel)")
+                Text("Catalog Manager — \(app.currentSite.shortLabel)")
                     .font(.system(size: 13, weight: .medium))
                     .foregroundColor(Theme.n(200))
                 if app.currentState.dirty {
@@ -48,8 +48,8 @@ struct ContentView: View {
                 }
             }
             Spacer()
-            NocturneButton(title: "Открыть", systemImage: "folder", kind: .ghost) { app.openCatalog() }
-            NocturneButton(title: "Сохранить", systemImage: "square.and.arrow.down", kind: .secondary) { app.saveCatalog() }
+            NocturneButton(title: "Open", systemImage: "folder", kind: .ghost) { app.openCatalog() }
+            NocturneButton(title: "Save", systemImage: "square.and.arrow.down", kind: .secondary) { app.saveCatalog() }
         }
         .padding(.horizontal, 16)
         .frame(height: Theme.toolbarHeight)

@@ -21,9 +21,9 @@ enum ThemeID: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .dark: return "Тёмная"
-        case .light: return "Светлая"
-        case .pinkGold: return "Розово-золотая"
+        case .dark: return "Dark"
+        case .light: return "Light"
+        case .pinkGold: return "Pink & gold"
         }
     }
 

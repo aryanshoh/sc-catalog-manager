@@ -13,8 +13,8 @@ enum Dialogs {
         alert.messageText = title
         alert.informativeText = message
         alert.alertStyle = .warning
-        alert.addButton(withTitle: "Да")
-        alert.addButton(withTitle: "Отмена")
+        alert.addButton(withTitle: "Yes")
+        alert.addButton(withTitle: "Cancel")
         return alert.runModal() == .alertFirstButtonReturn
     }
 
@@ -28,9 +28,9 @@ enum Dialogs {
         alert.messageText = title
         alert.informativeText = message
         alert.alertStyle = .warning
-        alert.addButton(withTitle: "Перезагрузить с диска")  // alertFirstButtonReturn
-        alert.addButton(withTitle: "Перезаписать")           // alertSecondButtonReturn
-        alert.addButton(withTitle: "Отмена")                 // alertThirdButtonReturn
+        alert.addButton(withTitle: "Reload from disk")  // alertFirstButtonReturn
+        alert.addButton(withTitle: "Overwrite")           // alertSecondButtonReturn
+        alert.addButton(withTitle: "Cancel")                 // alertThirdButtonReturn
         switch alert.runModal() {
         case .alertFirstButtonReturn: return .reload
         case .alertSecondButtonReturn: return .overwrite

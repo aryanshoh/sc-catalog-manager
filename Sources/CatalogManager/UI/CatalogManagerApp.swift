@@ -28,13 +28,13 @@ struct CatalogManagerApp: App {
         .windowResizability(.contentMinSize)
         .commands {
             CommandGroup(replacing: .newItem) {
-                Button("Открыть…") { app.openCatalog() }
+                Button("Open…") { app.openCatalog() }
                     .keyboardShortcut("o", modifiers: .command)
             }
             CommandGroup(replacing: .saveItem) {
-                Button("Сохранить") { app.saveCatalog() }
+                Button("Save") { app.saveCatalog() }
                     .keyboardShortcut("s", modifiers: .command)
-                Button("Сохранить как…") { app.saveCatalogAs() }
+                Button("Save As…") { app.saveCatalogAs() }
                     .keyboardShortcut("s", modifiers: [.command, .shift])
             }
             // Пункт «Проверить обновления…» в меню приложения (рядом с «О программе»).
@@ -58,7 +58,7 @@ struct CheckForUpdatesView: View {
     }
 
     var body: some View {
-        Button("Проверить обновления…") { updater.checkForUpdates() }
+        Button("Check for Updates…") { updater.checkForUpdates() }
             .disabled(!checker.canCheckForUpdates)
     }
 }

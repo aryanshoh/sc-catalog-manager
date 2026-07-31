@@ -7,19 +7,25 @@ import Foundation
 enum CoreConstants {
     static let separatorLine = String(repeating: "=", count: 80)
 
+    /// Название секции с категориями и тегами товара.
+    static let categoriesSection = "Categories & tags"
     /// Название секции с датой публикации товара на сайте.
-    static let publishDateSection = "Дата публикации"
+    static let publishDateSection = "Publication date"
     /// Название секции с датой последнего изменения товара на сайте.
-    static let modifiedDateSection = "Дата изменения"
+    static let modifiedDateSection = "Modification date"
+    /// Название секции с кратким описанием товара.
+    static let shortDescriptionSection = "Short description"
+    /// Название секции с полным описанием товара.
+    static let fullDescriptionSection = "Full description"
 
     // Порядок секций товара в txt-каталоге: категории, даты публикации и
     // изменения, затем краткое и полное описание.
     static let sectionOrder = [
-        "Категории и теги",
+        categoriesSection,
         publishDateSection,
         modifiedDateSection,
-        "Краткое описание",
-        "Полное описание",
+        shortDescriptionSection,
+        fullDescriptionSection,
     ]
 
     static let requestTimeout: TimeInterval = 45
@@ -62,7 +68,7 @@ enum Sites {
             label: "SubliminalClub — subliminalclub.com/shop",
             shopURL: "https://www.subliminalclub.com/shop/",
             titleSuffixPattern: "SubliminalClub",
-            catalogHeader: "SubliminalClub — содержимое страниц продуктов"
+            catalogHeader: "SubliminalClub — product page contents"
         ),
         Site(
             key: "quintessence",
@@ -70,7 +76,7 @@ enum Sites {
             label: "Quintessence — q.subliminalclub.com/shop",
             shopURL: "https://q.subliminalclub.com/shop/",
             titleSuffixPattern: "Quintessence|SubliminalClub",
-            catalogHeader: "Quintessence (q.subliminalclub.com) — содержимое страниц продуктов"
+            catalogHeader: "Quintessence (q.subliminalclub.com) — product page contents"
         ),
     ]
 
@@ -108,20 +114,20 @@ final class Product: Identifiable, Hashable, @unchecked Sendable {
     }
 
     func categories() -> [String] {
-        CatalogText.parseCategories(sections["Категории и теги"] ?? "")
+        CatalogText.parseCategories(sections[CoreConstants.categoriesSection] ?? "")
     }
 
     /// Нормализованный «отпечаток» содержимого для сравнения товара с сайтом.
     func signature() -> String {
-        let short = sections["Краткое описание"] ?? ""
-        let full = sections["Полное описание"] ?? ""
+        let short = sections[CoreConstants.shortDescriptionSection] ?? ""
+        let full = sections[CoreConstants.fullDescriptionSection] ?? ""
         let text = "\(title)\n\(short)\n\(full)"
         let normalizedText = RegexPattern("\\s+")
             .replacingMatches(in: text, with: " ")
             .trimmingCharacters(in: .whitespacesAndNewlines)
             .lowercased()
         let categories = categories().map { $0.lowercased() }.sorted()
-        let tags = CatalogText.parseTags(sections["Категории и теги"] ?? "")
+        let tags = CatalogText.parseTags(sections[CoreConstants.categoriesSection] ?? "")
             .map { $0.lowercased() }.sorted()
         return "\(normalizedText)|CATS:\(categories.joined(separator: ","))|TAGS:\(tags.joined(separator: ","))"
     }

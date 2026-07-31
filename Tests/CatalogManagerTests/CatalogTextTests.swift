@@ -41,33 +41,33 @@ final class CatalogTextTests: XCTestCase {
 
     func testSerializeParseRoundTrip() {
         var s1 = OrderedStringMap()
-        s1["Краткое описание"] = "Short A"
-        s1["Категории и теги"] = "Categories: X, Y\nTags: t1, t2"
-        s1["Полное описание"] = "Full A line 1\nFull A line 2"
+        s1[CoreConstants.shortDescriptionSection] = "Short A"
+        s1[CoreConstants.categoriesSection] = "Categories: X, Y\nTags: t1, t2"
+        s1[CoreConstants.fullDescriptionSection] = "Full A line 1\nFull A line 2"
         let p1 = Product(title: "Alpha", sections: s1)
 
         var s2 = OrderedStringMap()
-        s2["Полное описание"] = "Only full text"
+        s2[CoreConstants.fullDescriptionSection] = "Only full text"
         let p2 = Product(title: "Beta", sections: s2)
 
-        let header = "Тестовый заголовок каталога"
+        let header = "Test catalog header"
         let serialized = CatalogText.serializeCatalog([p1, p2], header: header)
         let (parsedHeader, parsed) = CatalogText.parseCatalogText(serialized)
 
         XCTAssertEqual(parsedHeader, header)
         XCTAssertEqual(parsed.count, 2)
         XCTAssertEqual(parsed[0].title, "Alpha")
-        XCTAssertEqual(parsed[0].sections["Краткое описание"], "Short A")
-        XCTAssertEqual(parsed[0].sections["Полное описание"], "Full A line 1\nFull A line 2")
+        XCTAssertEqual(parsed[0].sections[CoreConstants.shortDescriptionSection], "Short A")
+        XCTAssertEqual(parsed[0].sections[CoreConstants.fullDescriptionSection], "Full A line 1\nFull A line 2")
         XCTAssertEqual(parsed[0].categories(), ["X", "Y"])
-        XCTAssertEqual(CatalogText.parseTags(parsed[0].sections["Категории и теги"] ?? ""), ["t1", "t2"])
+        XCTAssertEqual(CatalogText.parseTags(parsed[0].sections[CoreConstants.categoriesSection] ?? ""), ["t1", "t2"])
         XCTAssertEqual(parsed[1].title, "Beta")
-        XCTAssertEqual(parsed[1].sections["Полное описание"], "Only full text")
+        XCTAssertEqual(parsed[1].sections[CoreConstants.fullDescriptionSection], "Only full text")
     }
 
     func testSerializeCountsProductsAndEndsWithNewline() {
         let text = CatalogText.serializeCatalog([Product(title: "One"), Product(title: "Two")], header: "H")
-        XCTAssertTrue(text.contains("Количество найденных товаров: 2"))
+        XCTAssertTrue(text.contains("Products found: 2"))
         XCTAssertTrue(text.hasSuffix("\n"))
     }
 
@@ -82,21 +82,21 @@ final class CatalogTextTests: XCTestCase {
         let (_, products) = CatalogText.parseCatalogText(raw)
         XCTAssertEqual(products.count, 1)
         XCTAssertEqual(products[0].title, "Some Title")
-        XCTAssertEqual(products[0].sections["Полное описание"], "Just free-form text without section headers")
+        XCTAssertEqual(products[0].sections[CoreConstants.fullDescriptionSection], "Just free-form text without section headers")
     }
 
     // MARK: - signature
 
     func testSignatureIgnoresCategoryWhitespaceAndOrder() {
-        var a = OrderedStringMap(); a["Полное описание"] = "Same"; a["Категории и теги"] = "Categories: A, B"
-        var b = OrderedStringMap(); b["Полное описание"] = "Same"; b["Категории и теги"] = "Categories:  B ,  A"
+        var a = OrderedStringMap(); a[CoreConstants.fullDescriptionSection] = "Same"; a[CoreConstants.categoriesSection] = "Categories: A, B"
+        var b = OrderedStringMap(); b[CoreConstants.fullDescriptionSection] = "Same"; b[CoreConstants.categoriesSection] = "Categories:  B ,  A"
         XCTAssertEqual(Product(title: "T", sections: a).signature(),
                        Product(title: "T", sections: b).signature())
     }
 
     func testSignatureDiffersOnContent() {
-        var a = OrderedStringMap(); a["Полное описание"] = "One"
-        var b = OrderedStringMap(); b["Полное описание"] = "Two"
+        var a = OrderedStringMap(); a[CoreConstants.fullDescriptionSection] = "One"
+        var b = OrderedStringMap(); b[CoreConstants.fullDescriptionSection] = "Two"
         XCTAssertNotEqual(Product(title: "T", sections: a).signature(),
                           Product(title: "T", sections: b).signature())
     }
@@ -119,9 +119,9 @@ final class CatalogTextTests: XCTestCase {
 
     func testPublishDateRoundTripsAsSection() {
         var s = OrderedStringMap()
-        s["Категории и теги"] = "Categories: A"
+        s[CoreConstants.categoriesSection] = "Categories: A"
         s[CoreConstants.publishDateSection] = "23.07.2022"
-        s["Краткое описание"] = "Short"
+        s[CoreConstants.shortDescriptionSection] = "Short"
         let serialized = CatalogText.serializeCatalog([Product(title: "T", sections: s)], header: "H")
         let (_, parsed) = CatalogText.parseCatalogText(serialized)
         XCTAssertEqual(parsed.first?.sections[CoreConstants.publishDateSection], "23.07.2022")

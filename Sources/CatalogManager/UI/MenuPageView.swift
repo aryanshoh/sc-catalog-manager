@@ -26,7 +26,7 @@ struct MenuPageView: View {
                 Image(systemName: "magnifyingglass")
                     .font(.system(size: 13))
                     .foregroundColor(Theme.n(400))
-                TextField("Поиск по названию", text: $app.searchQuery)
+                TextField("Search by name", text: $app.searchQuery)
                     .textFieldStyle(.plain)
                     .font(.system(size: 12.5))
                     .foregroundColor(Theme.n(100))
@@ -42,10 +42,10 @@ struct MenuPageView: View {
 
             if !app.menuGroups().isEmpty {
                 HStack(spacing: 6) {
-                    OutlineToolButton(title: "Развернуть все", systemImage: "rectangle.expand.vertical") {
+                    OutlineToolButton(title: "Expand all", systemImage: "rectangle.expand.vertical") {
                         app.expandAllCategories()
                     }
-                    OutlineToolButton(title: "Свернуть все", systemImage: "rectangle.compress.vertical") {
+                    OutlineToolButton(title: "Collapse all", systemImage: "rectangle.compress.vertical") {
                         app.collapseAllCategories()
                     }
                     Spacer()
@@ -138,7 +138,7 @@ struct MenuPageView: View {
                     chips(product)
 
                     if let date = trimmed(product.sections[CoreConstants.publishDateSection]) {
-                        SectionCaption(text: "ДАТА ПУБЛИКАЦИИ", color: Theme.a(300))
+                        SectionCaption(text: "PUBLICATION DATE", color: Theme.a(300))
                         Text(date)
                             .font(.system(size: 13.5))
                             .foregroundColor(Theme.n(100))
@@ -147,7 +147,7 @@ struct MenuPageView: View {
                     }
 
                     if let modified = trimmed(product.sections[CoreConstants.modifiedDateSection]) {
-                        SectionCaption(text: "ДАТА ИЗМЕНЕНИЯ", color: Theme.a(300))
+                        SectionCaption(text: "MODIFICATION DATE", color: Theme.a(300))
                         Text(modified)
                             .font(.system(size: 13.5))
                             .foregroundColor(Theme.n(100))
@@ -155,8 +155,8 @@ struct MenuPageView: View {
                             .textSelection(.enabled)
                     }
 
-                    if let short = trimmed(product.sections["Краткое описание"]) {
-                        SectionCaption(text: "КРАТКОЕ ОПИСАНИЕ", color: Theme.a(300))
+                    if let short = trimmed(product.sections[CoreConstants.shortDescriptionSection]) {
+                        SectionCaption(text: "SHORT DESCRIPTION", color: Theme.a(300))
                         Text(short)
                             .font(.system(size: 13.5))
                             .foregroundColor(Theme.n(100))
@@ -165,8 +165,8 @@ struct MenuPageView: View {
                             .textSelection(.enabled)
                     }
 
-                    if let full = trimmed(product.sections["Полное описание"]) {
-                        SectionCaption(text: "ПОЛНОЕ ОПИСАНИЕ", color: Theme.a(300))
+                    if let full = trimmed(product.sections[CoreConstants.fullDescriptionSection]) {
+                        SectionCaption(text: "FULL DESCRIPTION", color: Theme.a(300))
                         Text(full)
                             .font(.system(size: 13))
                             .foregroundColor(Theme.n(200))
@@ -184,7 +184,7 @@ struct MenuPageView: View {
                 Image(systemName: "rectangle.stack")
                     .font(.system(size: 40))
                     .foregroundColor(Theme.n(400))
-                Text("Выберите продукт в списке слева")
+                Text("Select a product from the list on the left")
                     .font(.system(size: 13))
                     .foregroundColor(Theme.n(400))
             }
@@ -194,7 +194,7 @@ struct MenuPageView: View {
 
     private func chips(_ product: Product) -> some View {
         let categories = product.categories()
-        let tags = CatalogText.parseTags(product.sections["Категории и теги"] ?? "")
+        let tags = CatalogText.parseTags(product.sections[CoreConstants.categoriesSection] ?? "")
         return FlowLayout(hSpacing: 6, vSpacing: 6) {
             ForEach(Array(categories.enumerated()), id: \.offset) { _, cat in
                 TagChip(text: cat, kind: .accent)

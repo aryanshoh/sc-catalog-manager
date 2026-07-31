@@ -25,7 +25,7 @@ targets:
     info:
       path: CatalogManager/Info.plist
       properties:
-        CFBundleDisplayName: Каталог
+        CFBundleDisplayName: Catalog
         # Папка приложения видна в «Файлах», можно открывать txt «на месте».
         UIFileSharingEnabled: true
         LSSupportsOpeningDocumentsInPlace: true

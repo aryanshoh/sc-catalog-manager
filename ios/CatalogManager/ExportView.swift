@@ -10,12 +10,12 @@ struct ExportView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
-                    Text("Экспортирует все товары текущего каталога вместе с описаниями в один txt-файл, отсортированный по названию.")
+                    Text("Exports all products of the current catalog together with their descriptions into a single txt file, sorted by name.")
                         .font(.system(size: 14))
                         .foregroundColor(Theme.n(300))
                         .fixedSize(horizontal: false, vertical: true)
 
-                    NocturneButton(title: "Экспортировать в TXT…", systemImage: "square.and.arrow.up", kind: .primary) {
+                    NocturneButton(title: "Export to TXT…", systemImage: "square.and.arrow.up", kind: .primary) {
                         app.exportCatalog()
                     }
 
@@ -24,7 +24,7 @@ struct ExportView: View {
                             Image(systemName: "checkmark.circle.fill")
                                 .font(.system(size: 13))
                                 .foregroundColor(Theme.a(200))
-                            Text("\(name) сохранён")
+                            Text("\(name) saved")
                                 .font(.system(size: 13))
                                 .foregroundColor(Theme.a(100))
                         }
@@ -33,13 +33,13 @@ struct ExportView: View {
                         .clipShape(RoundedRectangle(cornerRadius: Theme.radiusSM))
                     }
 
-                    SectionCaption(text: "ПРЕДПРОСМОТР · ПО АЛФАВИТУ")
+                    SectionCaption(text: "PREVIEW · ALPHABETICAL")
                     previewCard
                 }
                 .padding(20)
             }
             .background(ThemedBackground(theme: app.themeID))
-            .navigationTitle("Экспорт")
+            .navigationTitle("Export")
             .navigationBarTitleDisplayMode(.inline)
         }
     }
@@ -50,7 +50,7 @@ struct ExportView: View {
         }
         return VStack(alignment: .leading, spacing: 0) {
             if ordered.isEmpty {
-                Text("Каталог пуст.")
+                Text("Catalog is empty.")
                     .font(.system(size: 14))
                     .foregroundColor(Theme.n(400))
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -84,7 +84,7 @@ struct ExportView: View {
     }
 
     private func shortDesc(_ product: Product) -> String? {
-        let s = (product.sections["Краткое описание"] ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        let s = (product.sections[CoreConstants.shortDescriptionSection] ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
         return s.isEmpty ? nil : s
     }
 }

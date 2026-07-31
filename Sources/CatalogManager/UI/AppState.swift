@@ -23,7 +23,7 @@ final class AppState: ObservableObject {
     @Published var selectedProduct: Product?
 
     // Статус-бар
-    @Published var statusText: String = "Готово"
+    @Published var statusText: String = "Ready"
 
     // Актуализация
     @Published var isRunning = false
@@ -74,7 +74,7 @@ final class AppState: ObservableObject {
         }
         self.catalogStates = states
         loadRememberedCatalogs()
-        statusText = "Активный сайт: \(currentSite.shortLabel)"
+        statusText = "Active site: \(currentSite.shortLabel)"
     }
 
     // MARK: - Оформление
@@ -125,7 +125,7 @@ final class AppState: ObservableObject {
             resetActualizationView()
         }
         exportSuccessName = nil
-        statusText = "Активный сайт: \(currentSite.shortLabel)"
+        statusText = "Active site: \(currentSite.shortLabel)"
     }
 
     private func loadRememberedCatalogs() {
@@ -183,7 +183,7 @@ final class AppState: ObservableObject {
             let sorted = uncategorized.sorted {
                 CatalogText.normalizeTitle($0.title) < CatalogText.normalizeTitle($1.title)
             }
-            groups.append(("Без категории", sorted))
+            groups.append(("Uncategorized", sorted))
         }
         return groups.map { (category: $0.0, products: $0.1) }
     }
@@ -194,13 +194,13 @@ final class AppState: ObservableObject {
         let site = currentSite
         if currentState.dirty {
             let ok = Dialogs.confirm(
-                "Несохранённые изменения",
-                "В текущем каталоге «\(site.label)» есть несохранённые изменения. Открыть другой файл и потерять их?"
+                "Unsaved changes",
+                "The current catalog “\(site.label)” has unsaved changes. Open another file and lose them?"
             )
             if !ok { return }
         }
 
-        guard let path = Dialogs.openTextFile(title: "Выберите локальный каталог для «\(site.label)» (txt)") else {
+        guard let path = Dialogs.openTextFile(title: "Choose a local catalog for “\(site.label)” (txt)") else {
             return
         }
 
@@ -209,9 +209,9 @@ final class AppState: ObservableObject {
             && Sites.all.contains { $0.key != site.key && filenameLower.contains($0.key) }
         if looksLikeOtherSite {
             let ok = Dialogs.confirm(
-                "Проверьте выбор сайта",
-                "Файл «\(path.lastPathComponent)» похож на каталог другого сайта, а сейчас выбран «\(site.label)». "
-                + "Открыть его как каталог «\(site.label)» всё равно?"
+                "Check the selected site",
+                "The file “\(path.lastPathComponent)” looks like another site's catalog, but “\(site.label)” is currently selected. "
+                + "Open it as the “\(site.label)” catalog anyway?"
             )
             if !ok { return }
         }
@@ -220,7 +220,7 @@ final class AppState: ObservableObject {
         do {
             loaded = try CatalogText.loadCatalog(path)
         } catch {
-            Dialogs.error("Ошибка чтения", "Не удалось прочитать файл:\n\(error.localizedDescription)")
+            Dialogs.error("Read error", "Could not read the file:\n\(error.localizedDescription)")
             return
         }
 
@@ -230,13 +230,13 @@ final class AppState: ObservableObject {
         )
         AppSettings.setCatalogPath(path, forSite: site.key)
         applySiteUI()
-        statusText = "Открыт каталог «\(site.shortLabel)»: \(path.lastPathComponent)"
+        statusText = "Opened catalog “\(site.shortLabel)”: \(path.lastPathComponent)"
     }
 
     func saveCatalog() {
         var state = currentState
         if state.products.isEmpty {
-            Dialogs.info("Каталог пуст", "Нечего сохранять — каталог пуст.")
+            Dialogs.info("Catalog is empty", "Nothing to save — the catalog is empty.")
             return
         }
         guard let path = state.path else {
@@ -250,15 +250,15 @@ final class AppState: ObservableObject {
            let onDisk = CatalogText.fileFingerprint(path),
            onDisk != known {
             let choice = Dialogs.conflict(
-                "Каталог изменён на диске",
-                "Файл «\(path.lastPathComponent)» изменился в общей папке после того, как вы его открыли — "
-                + "вероятно, его сохранил кто-то с другого устройства.\n\n"
-                + "• «Перезагрузить с диска» — открыть свежую версию (несохранённые правки в этом каталоге пропадут).\n"
-                + "• «Перезаписать» — сохранить вашу версию поверх (правки с другого устройства пропадут)."
+                "Catalog changed on disk",
+                "The file “\(path.lastPathComponent)” changed in the shared folder after you opened it — "
+                + "someone likely saved it from another device.\n\n"
+                + "• “Reload from disk” — open the fresh version (unsaved edits in this catalog will be lost).\n"
+                + "• “Overwrite” — save your version on top (edits from the other device will be lost)."
             )
             switch choice {
             case .cancel:
-                statusText = "Сохранение отменено: каталог изменён на диске"
+                statusText = "Save canceled: catalog changed on disk"
                 return
             case .reload:
                 reloadFromDisk(path, forSite: activeSiteKey)
@@ -272,14 +272,14 @@ final class AppState: ObservableObject {
         do {
             try CatalogText.saveCatalog(path, products: state.products, header: state.header)
         } catch {
-            Dialogs.error("Ошибка сохранения", error.localizedDescription)
+            Dialogs.error("Save error", error.localizedDescription)
             return
         }
         state.dirty = false
         state.loadedFileHash = CatalogText.contentFingerprint(content)
         catalogStates[activeSiteKey] = state
         AppSettings.setCatalogPath(path, forSite: activeSiteKey)
-        statusText = "Каталог сохранён: \(path.lastPathComponent)"
+        statusText = "Catalog saved: \(path.lastPathComponent)"
     }
 
     /// Перечитывает файл с диска в состояние сайта, отбрасывая версию в памяти.
@@ -289,7 +289,7 @@ final class AppState: ObservableObject {
         do {
             loaded = try CatalogText.loadCatalog(path)
         } catch {
-            Dialogs.error("Ошибка чтения", "Не удалось перечитать файл:\n\(error.localizedDescription)")
+            Dialogs.error("Read error", "Could not re-read the file:\n\(error.localizedDescription)")
             return
         }
         catalogStates[siteKey] = CatalogState(
@@ -300,24 +300,24 @@ final class AppState: ObservableObject {
             selectedProduct = nil
             collapsedCategories = []
         }
-        statusText = "Каталог перезагружен с диска: \(path.lastPathComponent)"
+        statusText = "Catalog reloaded from disk: \(path.lastPathComponent)"
     }
 
     func saveCatalogAs() {
         var state = currentState
         let site = currentSite
         if state.products.isEmpty {
-            Dialogs.info("Каталог пуст", "Нечего сохранять — каталог пуст.")
+            Dialogs.info("Catalog is empty", "Nothing to save — the catalog is empty.")
             return
         }
         let defaultName = state.path?.lastPathComponent ?? "\(site.key)_products.txt"
-        guard let path = Dialogs.saveTextFile(title: "Сохранить каталог «\(site.label)» как", defaultName: defaultName) else {
+        guard let path = Dialogs.saveTextFile(title: "Save catalog “\(site.label)” as", defaultName: defaultName) else {
             return
         }
         do {
             try CatalogText.saveCatalog(path, products: state.products, header: state.header)
         } catch {
-            Dialogs.error("Ошибка сохранения", error.localizedDescription)
+            Dialogs.error("Save error", error.localizedDescription)
             return
         }
         state.path = path
@@ -325,7 +325,7 @@ final class AppState: ObservableObject {
         state.loadedFileHash = CatalogText.fileFingerprint(path)
         catalogStates[site.key] = state
         AppSettings.setCatalogPath(path, forSite: site.key)
-        statusText = "Каталог сохранён: \(path.lastPathComponent)"
+        statusText = "Catalog saved: \(path.lastPathComponent)"
     }
 
     // MARK: - Актуализация
@@ -344,9 +344,9 @@ final class AppState: ObservableObject {
 
         if state.products.isEmpty && state.path == nil {
             let ok = Dialogs.confirm(
-                "Каталог не открыт",
-                "Для сайта «\(site.label)» локальный каталог не открыт. Начать актуализацию с пустого каталога "
-                + "(все товары сайта будут добавлены как новые)?"
+                "No catalog open",
+                "No local catalog is open for “\(site.label)”. Start the update with an empty catalog "
+                + "(all site products will be added as new)?"
             )
             if !ok { return }
         }
@@ -355,8 +355,8 @@ final class AppState: ObservableObject {
         isRunning = true
         resetActualizationView()
         activeSection = .actualize
-        let modeLabel = mode == .surface ? "поверхностная" : "полная"
-        statusText = "Актуализация выполняется (\(modeLabel))… (\(site.shortLabel))"
+        let modeLabel = mode == .surface ? "surface" : "full"
+        statusText = "Update in progress (\(modeLabel))… (\(site.shortLabel))"
         actualizingSiteKey = site.key
 
         let snapshot = state.products
@@ -390,7 +390,7 @@ final class AppState: ObservableObject {
 
     func cancelActualization() {
         cancelFlag.set()
-        appendLog("Останавливаю по запросу пользователя…")
+        appendLog("Stopping at user request…")
     }
 
     private func appendLog(_ message: String) {
@@ -408,12 +408,12 @@ final class AppState: ObservableObject {
 
     private func onActualizationDone(_ result: ActualizationResult) {
         appendLog("")
-        appendLog("Добавлено новых товаров: \(result.added.count)")
-        appendLog("Обновлено описаний: \(result.updated.count)")
-        appendLog("Без изменений: \(result.unchanged.count)")
-        appendLog("Отсутствуют на сайте (требуют решения): \(result.orphans.count)")
+        appendLog("New products added: \(result.added.count)")
+        appendLog("Descriptions updated: \(result.updated.count)")
+        appendLog("No changes: \(result.unchanged.count)")
+        appendLog("Missing on the site (need a decision): \(result.orphans.count)")
         if !result.failed.isEmpty {
-            appendLog("Не удалось загрузить: \(result.failed.count)")
+            appendLog("Failed to load: \(result.failed.count)")
             for item in result.failed {
                 appendLog("  - \(item.url): \(item.error)")
             }
@@ -434,9 +434,9 @@ final class AppState: ObservableObject {
         let removeIDs = Set(toRemove.map { ObjectIdentifier($0) })
         let catalog = context.result.catalog.filter { !removeIDs.contains(ObjectIdentifier($0)) }
         if toRemove.isEmpty {
-            appendLog("Все отсутствующие на сайте товары оставлены в каталоге.")
+            appendLog("All products missing on the site were kept in the catalog.")
         } else {
-            appendLog("Удалено из каталога по решению пользователя: \(toRemove.count)")
+            appendLog("Removed from the catalog by user decision: \(toRemove.count)")
         }
         orphanSheet = nil
         finishActualization(catalog: catalog, targetSiteKey: context.targetSiteKey)
@@ -451,27 +451,27 @@ final class AppState: ObservableObject {
 
         if activeSiteKey != targetSiteKey {
             let targetSite = Sites.site(forKey: targetSiteKey)
-            appendLog("Переключаю активный сайт на «\(targetSite.label)», чтобы показать результат.")
+            appendLog("Switching the active site to “\(targetSite.label)” to show the result.")
             activeSiteKey = targetSiteKey
             applySiteUI()
         } else {
             selectedProduct = nil
         }
-        statusText = "Актуализация завершена"
+        statusText = "Update complete"
 
-        let save = Dialogs.confirm("Актуализация завершена", "Сохранить изменения в файл каталога сейчас?")
+        let save = Dialogs.confirm("Update complete", "Save the changes to the catalog file now?")
         if save { saveCatalog() }
     }
 
     private func onActualizationCancelled() {
-        appendLog("Актуализация остановлена пользователем.")
-        statusText = "Актуализация остановлена"
+        appendLog("Update stopped by the user.")
+        statusText = "Update stopped"
     }
 
     private func onActualizationError(_ message: String) {
-        appendLog("Ошибка: \(message)")
-        statusText = "Ошибка актуализации"
-        Dialogs.error("Ошибка актуализации", message)
+        appendLog("Error: \(message)")
+        statusText = "Update error"
+        Dialogs.error("Update error", message)
     }
 
     // MARK: - Экспорт
@@ -480,10 +480,10 @@ final class AppState: ObservableObject {
         let state = currentState
         let site = currentSite
         if state.products.isEmpty {
-            Dialogs.info("Каталог пуст", "Нечего экспортировать — каталог пуст.")
+            Dialogs.info("Catalog is empty", "Nothing to export — the catalog is empty.")
             return
         }
-        guard let path = Dialogs.saveTextFile(title: "Экспорт каталога", defaultName: "\(site.key)_catalog_export.txt") else {
+        guard let path = Dialogs.saveTextFile(title: "Export catalog", defaultName: "\(site.key)_catalog_export.txt") else {
             return
         }
         let ordered = state.products.sorted {
@@ -493,11 +493,11 @@ final class AppState: ObservableObject {
             try CatalogText.serializeCatalog(ordered, header: state.header)
                 .write(to: path, atomically: true, encoding: .utf8)
         } catch {
-            Dialogs.error("Ошибка экспорта", error.localizedDescription)
+            Dialogs.error("Export error", error.localizedDescription)
             return
         }
         exportSuccessName = path.lastPathComponent
-        statusText = "Экспортировано \(ordered.count) товаров"
+        statusText = "Exported \(ordered.count) products"
     }
 
     // MARK: - Закрытие окна
@@ -506,8 +506,8 @@ final class AppState: ObservableObject {
     func confirmClose() -> Bool {
         if isRunning {
             let ok = Dialogs.confirm(
-                "Актуализация выполняется",
-                "Актуализация ещё выполняется. Прервать и закрыть приложение?"
+                "Update in progress",
+                "An update is still in progress. Interrupt it and quit the app?"
             )
             if !ok { return false }
             cancelFlag.set()
@@ -515,8 +515,8 @@ final class AppState: ObservableObject {
         let dirty = dirtySiteLabels()
         if !dirty.isEmpty {
             let ok = Dialogs.confirm(
-                "Несохранённые изменения",
-                "Есть несохранённые изменения в каталоге: " + dirty.joined(separator: ", ") + ". Закрыть без сохранения?"
+                "Unsaved changes",
+                "There are unsaved changes in the catalog: " + dirty.joined(separator: ", ") + ". Quit without saving?"
             )
             if !ok { return false }
         }
