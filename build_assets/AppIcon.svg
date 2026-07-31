@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="cream" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fdfaf2"/>
+      <stop offset="1" stop-color="#f1ead9"/>
+    </linearGradient>
+    <linearGradient id="brain" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8a7fe0"/>
+      <stop offset="1" stop-color="#6a5cc4"/>
+    </linearGradient>
+  </defs>
+  <rect x="64" y="64" width="896" height="896" rx="224"
+        fill="url(#cream)" stroke="#e2dac8" stroke-width="6"/>
+  <g transform="translate(512 512) scale(1.32) translate(-512 -512)">
+    <path d="M 512.0 322.0 A 64 64 0 0 1 614.7 352.2 A 64 64 0 0 1 684.8 433.1 A 64 64 0 0 1 700.1 539.0 A 64 64 0 0 1 655.6 636.4 A 64 64 0 0 1 565.5 694.3 A 64 64 0 0 1 458.5 694.3 A 64 64 0 0 1 368.4 636.4 A 64 64 0 0 1 323.9 539.0 A 64 64 0 0 1 339.2 433.1 A 64 64 0 0 1 409.3 352.2 A 64 64 0 0 1 512.0 322.0 Z" fill="url(#brain)" stroke="#4a3f97"
+          stroke-width="9" stroke-linejoin="round"/>
+    <path d="M 512 340 C 486 400 540 440 508 500 C 480 552 540 592 512 672" fill="none" stroke="#d8d2f4" stroke-width="15" stroke-linecap="round"/><path d="M 470 400 C 420 420 430 470 392 476" fill="none" stroke="#d8d2f4" stroke-width="15" stroke-linecap="round"/><path d="M 452 500 C 402 508 420 560 372 566" fill="none" stroke="#d8d2f4" stroke-width="15" stroke-linecap="round"/><path d="M 470 600 C 430 606 442 636 404 648" fill="none" stroke="#d8d2f4" stroke-width="15" stroke-linecap="round"/><path d="M 554 400 C 604 420 594 470 632 476" fill="none" stroke="#d8d2f4" stroke-width="15" stroke-linecap="round"/><path d="M 572 500 C 622 508 604 560 652 566" fill="none" stroke="#d8d2f4" stroke-width="15" stroke-linecap="round"/><path d="M 554 600 C 594 606 582 636 620 648" fill="none" stroke="#d8d2f4" stroke-width="15" stroke-linecap="round"/>
+  </g>
+</svg>

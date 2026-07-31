@@ -1,0 +1,18 @@
+.build/
+.swiftpm/
+Package.resolved
+
+# Собранные артефакты (приложение, .dmg, файлы обновлений) — в репо не нужны,
+# релизы уходят в GitHub Releases.
+dist/
+
+# Локальное и системное
+.DS_Store
+.claude/
+sparkle_private_key_backup*.txt
+
+# iOS: xcodegen генерирует .xcodeproj из project.yml; сборка — временная
+ios/CatalogManageriOS.xcodeproj/
+ios/.build_ios/
+ios/build/
+*.xcuserstate
