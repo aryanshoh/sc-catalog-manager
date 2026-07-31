@@ -17,8 +17,8 @@ ROOT="$(cd "$(dirname "$0")" && pwd)"
 # --- параметры (те же, что в build_app.sh; переопределяются из окружения) -----
 GH_OWNER="${GH_OWNER:-aryanshoh}"
 GH_REPO="${GH_REPO:-sc-catalog-manager}"
-VERSION="${VERSION:-1.2}"
-BUILD="${BUILD:-3}"
+VERSION="${VERSION:-1.4}"
+BUILD="${BUILD:-5}"
 
 APP_NAME="SubliminalClub Catalog Manager"
 DIST="$ROOT/dist"
