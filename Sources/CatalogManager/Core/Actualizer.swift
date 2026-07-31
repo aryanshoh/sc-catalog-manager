@@ -86,17 +86,28 @@ private func actualizeFull(
                 updated.append(scraped.title)
                 log("[\(i)/\(total)] Обновлено: \(scraped.title)")
             } else {
-                // Содержание не изменилось, но дату публикации подтягиваем со
-                // свежей страницы и для «неизменившихся»: в signature() она не
-                // входит, поэтому это не считается обновлением, но дата
-                // появляется и у ранее сохранённых товаров без неё.
-                let scrapedDate = scraped.sections[CoreConstants.publishDateSection]
-                if let scrapedDate, !scrapedDate.isEmpty,
-                   localProduct.sections[CoreConstants.publishDateSection] != scrapedDate {
-                    localProduct.sections[CoreConstants.publishDateSection] = scrapedDate
+                // Отслеживаемые поля не изменились. Даты публикации и изменения
+                // в signature() не входят, поэтому подтягиваем их со свежей
+                // страницы и для «неизменившихся» (это не считается обновлением).
+                let scrapedPublish = scraped.sections[CoreConstants.publishDateSection]
+                if let scrapedPublish, !scrapedPublish.isEmpty,
+                   localProduct.sections[CoreConstants.publishDateSection] != scrapedPublish {
+                    localProduct.sections[CoreConstants.publishDateSection] = scrapedPublish
+                }
+
+                // Сигнал: сайт правил товар (дата изменения выросла), хотя
+                // отслеживаемые поля совпали — стоит показать это отдельной строкой.
+                let oldModified = localProduct.sections[CoreConstants.modifiedDateSection] ?? ""
+                let newModified = scraped.sections[CoreConstants.modifiedDateSection] ?? ""
+                if !newModified.isEmpty {
+                    localProduct.sections[CoreConstants.modifiedDateSection] = newModified
+                }
+                if !oldModified.isEmpty, !newModified.isEmpty, oldModified != newModified {
+                    log("[\(i)/\(total)] Изменено на сайте (дата \(oldModified) → \(newModified)): \(scraped.title)")
+                } else {
+                    log("[\(i)/\(total)] Без изменений: \(scraped.title)")
                 }
                 unchanged.append(scraped.title)
-                log("[\(i)/\(total)] Без изменений: \(scraped.title)")
             }
         } else {
             resultCatalog.append(scraped)

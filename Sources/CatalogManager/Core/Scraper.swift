@@ -336,51 +336,60 @@ final class Scraper: @unchecked Sendable {
         return (categories, tags)
     }
 
-    // MARK: - Дата публикации
+    // MARK: - Даты публикации и изменения
 
-    /// Дата публикации товара из разметки страницы в формате dd.MM.yyyy, либо
-    /// nil. Источники по приоритету: мета-тег article:published_time и
-    /// datePublished из JSON-LD (узел страницы @type WebPage/ItemPage). Даты
+    /// Дата публикации товара из разметки страницы в формате dd.MM.yyyy, либо nil.
+    func extractPublishDate(_ soup: Document) throws -> String? {
+        try extractDate(soup, metaProperty: "article:published_time", jsonKey: "datePublished")
+    }
+
+    /// Дата последнего изменения товара на сайте в формате dd.MM.yyyy, либо nil.
+    func extractModifiedDate(_ soup: Document) throws -> String? {
+        try extractDate(soup, metaProperty: "article:modified_time", jsonKey: "dateModified")
+    }
+
+    /// Общий разбор даты. Источники по приоритету: мета-тег `metaProperty` и
+    /// поле `jsonKey` из JSON-LD (узел страницы @type WebPage/ItemPage). Даты
     /// отзывов (вложены в Product.review[]) сюда не попадают — берётся только
     /// узел самой страницы.
-    func extractPublishDate(_ soup: Document) throws -> String? {
-        var iso = try soup.select("meta[property='article:published_time'][content]")
+    private func extractDate(_ soup: Document, metaProperty: String, jsonKey: String) throws -> String? {
+        var iso = try soup.select("meta[property='\(metaProperty)'][content]")
             .first()?.attr("content")
         if iso?.isEmpty ?? true {
-            iso = Scraper.publishDateFromJSONLD(soup)
+            iso = Scraper.dateFromJSONLD(soup, key: jsonKey)
         }
         guard let raw = iso, !raw.isEmpty else { return nil }
         return CatalogText.formatPublishDate(fromISO: raw)
     }
 
-    private static func publishDateFromJSONLD(_ soup: Document) -> String? {
+    private static func dateFromJSONLD(_ soup: Document, key: String) -> String? {
         guard let scripts = try? soup.select("script[type='application/ld+json']").array() else {
             return nil
         }
         for script in scripts {
             guard let data = script.data().data(using: .utf8),
                   let obj = try? JSONSerialization.jsonObject(with: data) else { continue }
-            if let date = pageDatePublished(obj) { return date }
+            if let date = pageDate(obj, key: key) { return date }
         }
         return nil
     }
 
-    /// Рекурсивно ищет datePublished у узла страницы (@type содержит WebPage или
+    /// Рекурсивно ищет поле `key` у узла страницы (@type содержит WebPage или
     /// ItemPage). Спуск идёт только по @graph и вложенным массивам узлов, а не
     /// внутрь произвольных полей, поэтому даты отзывов (Review) не подхватываются.
-    private static func pageDatePublished(_ any: Any) -> String? {
+    private static func pageDate(_ any: Any, key: String) -> String? {
         if let dict = any as? [String: Any] {
-            if let graph = dict["@graph"], let found = pageDatePublished(graph) {
+            if let graph = dict["@graph"], let found = pageDate(graph, key: key) {
                 return found
             }
             let types = typeList(dict["@type"])
             if types.contains("WebPage") || types.contains("ItemPage"),
-               let dp = dict["datePublished"] as? String, !dp.isEmpty {
-                return dp
+               let value = dict[key] as? String, !value.isEmpty {
+                return value
             }
         } else if let arr = any as? [Any] {
             for item in arr {
-                if let found = pageDatePublished(item) { return found }
+                if let found = pageDate(item, key: key) { return found }
             }
         }
         return nil
@@ -425,6 +434,9 @@ final class Scraper: @unchecked Sendable {
 
         if let publishDate = try extractPublishDate(soup) {
             sections[CoreConstants.publishDateSection] = publishDate
+        }
+        if let modifiedDate = try extractModifiedDate(soup) {
+            sections[CoreConstants.modifiedDateSection] = modifiedDate
         }
 
         if let description = try soup.select(

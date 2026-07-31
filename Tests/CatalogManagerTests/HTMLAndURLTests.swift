@@ -36,6 +36,33 @@ final class PublishDateExtractionTests: XCTestCase {
         let soup = try SwiftSoup.parse("<html><head></head><body>no date here</body></html>")
         XCTAssertNil(try Scraper().extractPublishDate(soup))
     }
+
+    // Дата публикации и дата изменения берутся из разных полей одного узла.
+    func testExtractsBothPublishedAndModifiedFromJSONLD() throws {
+        let html = """
+        <html><head>
+        <script type="application/ld+json">
+        {"@context":"https://schema.org","@graph":[
+          {"@type":["WebPage","ItemPage"],"datePublished":"2022-07-23T02:34:02+00:00","dateModified":"2026-05-24T19:03:54+00:00"},
+          {"@type":"Product","review":[{"@type":"Review","datePublished":"2025-06-10T09:14:35-04:00"}]}
+        ]}
+        </script>
+        </head><body></body></html>
+        """
+        let soup = try SwiftSoup.parse(html)
+        XCTAssertEqual(try Scraper().extractPublishDate(soup), "23.07.2022")
+        XCTAssertEqual(try Scraper().extractModifiedDate(soup), "24.05.2026")
+    }
+
+    func testExtractsModifiedFromMetaTag() throws {
+        let html = """
+        <html><head>
+        <meta property="article:modified_time" content="2026-03-19T23:49:58+00:00" />
+        </head><body></body></html>
+        """
+        let soup = try SwiftSoup.parse(html)
+        XCTAssertEqual(try Scraper().extractModifiedDate(soup), "19.03.2026")
+    }
 }
 
 final class HTMLPlainTextTests: XCTestCase {
