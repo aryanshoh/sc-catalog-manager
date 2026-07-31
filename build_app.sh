@@ -16,8 +16,8 @@ EXECUTABLE="CatalogManager"
 # Версию и номер сборки можно переопределить из окружения при релизе:
 #   VERSION=1.2 BUILD=3 ./build_app.sh
 # Sparkle сравнивает обновления по BUILD (CFBundleVersion) — он должен расти.
-VERSION="${VERSION:-1.1}"
-BUILD="${BUILD:-2}"
+VERSION="${VERSION:-1.2}"
+BUILD="${BUILD:-3}"
 MIN_MACOS="14.0"
 
 # --- авто-обновление (Sparkle) ----------------------------------------------
